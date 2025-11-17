@@ -1,0 +1,100 @@
+Experiment 1: IP Routing results
+
+--- sanity: h1->r1 (10.0.0.3) ---
+PING 10.0.0.3 (10.0.0.3) 56(84) bytes of data.
+64 bytes from 10.0.0.3: icmp_seq=1 ttl=64 time=0.056 ms
+
+--- 10.0.0.3 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.056/0.056/0.056/0.000 ms
+
+--- sanity: r1->r2 (10.0.1.2) ---
+PING 10.0.1.2 (10.0.1.2) 56(84) bytes of data.
+64 bytes from 10.0.1.2: icmp_seq=1 ttl=64 time=0.036 ms
+
+--- 10.0.1.2 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.036/0.036/0.036/0.000 ms
+
+--- sanity: r2->r1 (10.0.1.1) ---
+PING 10.0.1.1 (10.0.1.1) 56(84) bytes of data.
+64 bytes from 10.0.1.1: icmp_seq=1 ttl=64 time=0.007 ms
+
+--- 10.0.1.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.007/0.007/0.007/0.000 ms
+
+--- sanity: h3->r2 (10.0.2.1) ---
+PING 10.0.2.1 (10.0.2.1) 56(84) bytes of data.
+64 bytes from 10.0.2.1: icmp_seq=1 ttl=64 time=0.010 ms
+
+--- 10.0.2.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.010/0.010/0.010/0.000 ms
+
+--- h1 -> h3 (10.0.2.2) ---
+PING 10.0.2.2 (10.0.2.2) 56(84) bytes of data.
+64 bytes from 10.0.2.2: icmp_seq=1 ttl=62 time=0.016 ms
+
+--- 10.0.2.2 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.016/0.016/0.016/0.000 ms
+
+--- h2 -> h3 (10.0.2.2) ---
+PING 10.0.2.2 (10.0.2.2) 56(84) bytes of data.
+64 bytes from 10.0.2.2: icmp_seq=1 ttl=62 time=0.025 ms
+
+--- 10.0.2.2 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.025/0.025/0.025/0.000 ms
+
+--- h3 -> h1 (10.0.0.1) ---
+PING 10.0.0.1 (10.0.0.1) 56(84) bytes of data.
+64 bytes from 10.0.0.1: icmp_seq=1 ttl=62 time=0.012 ms
+
+--- 10.0.0.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.012/0.012/0.012/0.000 ms
+
+--- h3 -> h2 (10.0.3.2) ---
+PING 10.0.3.2 (10.0.3.2) 56(84) bytes of data.
+64 bytes from 10.0.3.2: icmp_seq=1 ttl=62 time=0.005 ms
+
+--- 10.0.3.2 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.005/0.005/0.005/0.000 ms
+
+--- [r1 ip -br addr] ---
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+r1-eth0@if2      UP             10.0.0.3/24 
+r1-eth1@if2      UP             10.0.3.4/24 
+r1-eth2@if2      UP             10.0.1.1/24
+
+--- [r2 ip -br addr] ---
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+r2-eth0@if4      UP             10.0.1.2/24 
+r2-eth1@if2      UP             10.0.2.1/24
+
+--- [r1 route] ---
+10.0.0.0/24 dev r1-eth0 proto kernel scope link src 10.0.0.3 
+10.0.1.0/24 dev r1-eth2 proto kernel scope link src 10.0.1.1 
+10.0.2.0/24 via 10.0.1.2 dev r1-eth2 
+10.0.3.0/24 dev r1-eth1 proto kernel scope link src 10.0.3.4
+
+--- [r2 route] ---
+10.0.0.0/24 via 10.0.1.1 dev r2-eth0 
+10.0.1.0/24 dev r2-eth0 proto kernel scope link src 10.0.1.2 
+10.0.2.0/24 dev r2-eth1 proto kernel scope link src 10.0.2.1 
+10.0.3.0/24 via 10.0.1.1 dev r2-eth0
+
+--- [h1 ip -br addr] ---
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+h1-eth0@if2      UP             10.0.0.1/24 fe80::a8fd:bbff:fe46:4575/64
+
+--- [h2 ip -br addr] ---
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+h2-eth0@if3      UP             10.0.3.2/24 fe80::b0e8:20ff:feb7:f362/64
+
+--- [h3 ip -br addr] ---
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+h3-eth0@if3      UP             10.0.2.2/24 fe80::9ced:2ff:fe89:bd25/64

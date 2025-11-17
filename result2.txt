@@ -1,0 +1,71 @@
+Experiment 2: SDN (L2) results
+
+--- ovs-ofctl show s1 (before) ---
+OFPT_FEATURES_REPLY (OF1.3) (xid=0x2): dpid:0000000000000001
+n_tables:254, n_buffers:0
+capabilities: FLOW_STATS TABLE_STATS PORT_STATS GROUP_STATS QUEUE_STATS
+OFPST_PORT_DESC reply (OF1.3) (xid=0x3):
+ 1(s1-eth1): addr:56:63:32:bd:c6:74
+     config:     0
+     state:      LIVE
+     current:    10GB-FD COPPER
+     speed: 10000 Mbps now, 0 Mbps max
+ 2(s1-eth2): addr:f6:5b:f5:ed:c1:75
+     config:     0
+     state:      LIVE
+     current:    10GB-FD COPPER
+     speed: 10000 Mbps now, 0 Mbps max
+ 3(s1-eth3): addr:32:b6:8a:a0:78:c8
+     config:     0
+     state:      LIVE
+     current:    10GB-FD COPPER
+     speed: 10000 Mbps now, 0 Mbps max
+ LOCAL(s1): addr:16:87:70:f3:26:4a
+     config:     PORT_DOWN
+     state:      LINK_DOWN
+     speed: 0 Mbps now, 0 Mbps max
+OFPT_GET_CONFIG_REPLY (OF1.3) (xid=0x9): frags=normal miss_send_len=0
+
+--- ovs-ofctl dump-flows s1 (before) ---
+cookie=0x0, duration=0.045s, table=0, n_packets=0, n_bytes=0, priority=0 actions=NORMAL
+
+--- h1 -> h3 BEFORE ---
+PING 10.0.0.3 (10.0.0.3) 56(84) bytes of data.
+64 bytes from 10.0.0.3: icmp_seq=1 ttl=64 time=0.340 ms
+
+--- 10.0.0.3 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.340/0.340/0.340/0.000 ms
+
+--- h2 -> h3 BEFORE ---
+PING 10.0.0.3 (10.0.0.3) 56(84) bytes of data.
+64 bytes from 10.0.0.3: icmp_seq=1 ttl=64 time=0.078 ms
+
+--- 10.0.0.3 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.078/0.078/0.078/0.000 ms
+
+--- Command used (drop all traffic from s1-eth2) ---
+ovs-ofctl -O OpenFlow13 add-flow s1 "in_port=2,actions=drop"
+
+--- Command used (forward s1-eth1 -> s1-eth3) ---
+ovs-ofctl -O OpenFlow13 add-flow s1 "in_port=1,actions=output:3"
+
+--- ovs-ofctl dump-flows s1 (after) ---
+cookie=0x0, duration=0.006s, table=0, n_packets=0, n_bytes=0, in_port="s1-eth2" actions=drop
+ cookie=0x0, duration=0s, table=0, n_packets=0, n_bytes=0, in_port="s1-eth1" actions=output:"s1-eth3"
+ cookie=0x0, duration=0.066s, table=0, n_packets=8, n_bytes=560, priority=0 actions=NORMAL
+
+--- h1 -> h3 AFTER ---
+PING 10.0.0.3 (10.0.0.3) 56(84) bytes of data.
+64 bytes from 10.0.0.3: icmp_seq=1 ttl=64 time=0.011 ms
+
+--- 10.0.0.3 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.011/0.011/0.011/0.000 ms
+
+--- h2 -> h3 AFTER ---
+PING 10.0.0.3 (10.0.0.3) 56(84) bytes of data.
+
+--- 10.0.0.3 ping statistics ---
+1 packets transmitted, 0 received, 100% packet loss, time 0ms
