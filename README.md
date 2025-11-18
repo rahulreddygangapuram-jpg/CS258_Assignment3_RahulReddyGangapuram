@@ -20,24 +20,24 @@ Make sure mininet is installed.
 
 Inside your project, open a terminal and run the below commands to execute Experiment 1
 
-'''
+```
 sudo mn -c
 sudo python3 exp1.py
 cat result1.txt
-'''
+```
 
 You will see the results saved to result1.txt
 
 and for Experiment 2 run
 
-'''
+```
 sudo mn -c
 sudo HOLD=1 python3 exp2.py
-'''
+```
 
 Open another terminal and run
 
-'''
+```
 sudo ovs-ofctl -O OpenFlow13 show s1            | sudo tee -a result2.txt
 sudo ovs-ofctl -O OpenFlow13 dump-flows s1      | sudo tee -a result2.txt
 
@@ -45,7 +45,7 @@ sudo ovs-ofctl -O OpenFlow13 add-flow s1 "in_port=2,actions=drop"       | sudo t
 sudo ovs-ofctl -O OpenFlow13 add-flow s1 "in_port=1,actions=output:3"   | sudo tee -a result2.txt
 
 sudo ovs-ofctl -O OpenFlow13 dump-flows s1      | sudo tee -a result2.txt
-'''
+```
 
 You will see the results saved to result2.txt
 
